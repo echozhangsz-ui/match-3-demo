@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Side Defense Prototype - Forest Build</title>
+  <link rel="stylesheet" href="./style.css?v=20260323-beachsoldieranim5" />
+</head>
+<body>
+  <div class="game-shell">
+    <div class="game-stage">
+      <canvas id="gameCanvas" width="1280" height="720"></canvas>
+
+      <div id="worldMapScreen" class="world-map-screen">
+        <div class="world-map-screen__panel">
+          <div class="world-map-screen__title">WORLD MAP</div>
+          <div class="world-map-screen__subtitle">Choose an unlocked stage</div>
+        </div>
+        <div class="world-map-screen__brand">REALM DEFENDERS</div>
+
+        <div id="worldMapNodes" class="world-map-nodes">
+          <button class="world-node world-node--completed" data-scene="forest" style="left: 14%; top: 64%;">
+            <span class="world-node__badge">forest</span>
+            <span class="world-node__check">?</span>
+          </button>
+          <button class="world-node world-node--unlocked" data-scene="beach" style="left: calc(42% - 55px); top: 46%;">
+            <span class="world-node__badge">beach</span>
+          </button>
+          <button class="world-node world-node--locked" data-scene="mystery" style="left: calc(68% - 70px); top: calc(30% + 30px);">
+            <span class="world-node__badge">?</span>
+            <span class="world-node__lock">??</span>
+          </button>
+          <button class="world-node world-node--locked" data-scene="summit" style="left: calc(88% - 45px); top: 52%;">
+            <span class="world-node__badge">?</span>
+            <span class="world-node__lock">??</span>
+          </button>
+        </div>
+      </div>
+
+      <button id="homeBtn" class="home-button hidden">HOME</button>
+
+      <div class="game-overlay hidden" id="gameOverlay">
+        <div id="hud" class="hud">
+          <div class="hud__stats">
+            <div class="hud__card hud__card--icon">
+              <span id="hudGoldIcon" class="hud__icon" aria-hidden="true">
+                <svg viewBox="0 0 64 64"><circle cx="26" cy="30" r="12" fill="#ffcf4d" stroke="#2a3441" stroke-width="3"/><circle cx="38" cy="24" r="12" fill="#ffd86d" stroke="#2a3441" stroke-width="3"/><path d="M20 30h12M32 24h12" stroke="#fff5bf" stroke-width="3" stroke-linecap="round"/></svg>
+              </span>
+              <strong id="goldValue">200</strong>
+            </div>
+            <div class="hud__card hud__card--icon">
+              <span id="hudLifeIcon" class="hud__icon" aria-hidden="true">
+                <svg viewBox="0 0 64 64"><path d="M32 54C20 44 12 36 12 24c0-8 6-14 14-14 5 0 9 3 11 7 2-4 6-7 11-7 8 0 14 6 14 14 0 12-8 20-20 30z" fill="#ff6f61" stroke="#2a3441" stroke-width="3" stroke-linejoin="round"/></svg>
+              </span>
+              <strong id="lifeValue">20</strong>
+            </div>
+            <div class="hud__card hud__card--icon">
+              <span id="hudWaveIcon" class="hud__icon" aria-hidden="true">
+                <svg viewBox="0 0 64 64"><path d="M18 54V10" stroke="#2a3441" stroke-width="4" stroke-linecap="round"/><path d="M22 12h22l-6 10 6 10H22z" fill="#6bb6ff" stroke="#2a3441" stroke-width="3" stroke-linejoin="round"/></svg>
+              </span>
+              <strong id="waveValue">0 / 5</strong>
+            </div>
+          </div>
+          <div id="unitButtons" class="hud__actions"></div>
+          <div class="hud__controls">
+            <button id="nextWaveBtn" class="hud__button hud__button--primary">START NEXT WAVE</button>
+            <button id="restartBtn" class="hud__button">RESTART</button>
+          </div>
+        </div>
+        <div id="statusBar" class="status-bar">Loading game...</div>
+      </div>
+
+      <div id="removeMenu" class="remove-menu hidden">
+        <button id="removeUnitBtn" class="remove-menu__button">Remove</button>
+      </div>
+
+      <div id="waveBanner" class="wave-banner"><span id="waveBannerText">Wave 1</span></div>
+      <div id="messagePanel" class="message-panel hidden">
+        <div class="message-panel__backdrop"></div>
+        <div id="messageCard" class="message-panel__card">
+          <h1 id="messageTitle">VICTORY</h1>
+          <p id="messageSubtitle">You survived all waves</p>
+          <button id="messageRestartBtn" class="hud__button hud__button--primary">Restart</button>
+        </div>
+      </div>
+      <div id="startHint" class="start-hint hidden">Pick a unit, place it on a circle slot, then start the next wave.</div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener("error", function (event) {
+      var bar = document.getElementById("statusBar");
+      if (bar) {
+        bar.textContent = "Script error: " + event.message;
+        bar.className = "status-bar status-bar--error";
+      }
+    });
+  </script>
+  <script src="./utils/math.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./utils/collision.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./config/map.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./config/units.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./config/enemies.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./config/waves.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./config/scenes.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./config/assets.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./game/gameState.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./utils/assetLoader.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./audio/audioManager.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./entities/projectile.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./entities/enemy.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./entities/unit.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./entities/effect.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./ui/hudUI.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./ui/waveUI.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./ui/victoryUI.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./ui/defeatUI.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./ui/worldMapUI.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./render/renderer.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./game/gameLoop.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./game/game.js?v=20260323-beachsoldieranim5"></script>
+  <script src="./main.js?v=20260323-beachsoldieranim5"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
